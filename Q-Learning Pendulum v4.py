@@ -70,7 +70,7 @@ import pickle
 # Treinamento --> is_training = True
 # Avaliação --> is_training = False
 is_training = False
-is_training = True
+# is_training = True
 
 avaliable_epsodes = 6 # episódios na avaliação do modelo
 
@@ -84,7 +84,7 @@ env = gym.make('Pendulum-v1', render_mode='human' if render else None,
                max_episode_steps = max_episode_steps_)
 
 # hyperparameters
-episodes = 150
+episodes = 1000
 learning_rate_a = 0.1        # alpha aka learning rate
 discount_factor_g = 0.9      # gamma aka discount factor.
 epsilon = 1                  # start episilon at 1 (100% random actions)
@@ -103,7 +103,7 @@ w  = np.linspace(env.observation_space.low[2], env.observation_space.high[2], di
 # discretização das ações em [din] amostras
 a = np.linspace(env.action_space.low[0], env.action_space.high[0], din)
 
-if(is_training):
+if is_training:
     # initialize q table to 16x16x16x16 array if din = 15  
     q = np.zeros((len(x)+1, len(y)+1, len(w)+1, len(a)+1))
     best_reward = -99999
