@@ -40,21 +40,24 @@ def compute_returns(rewards, gamma=0.99):
 
 # Função principal para treinar a política usando REINFORCE
 def reinforce(env, policy, optimizer, episodes=1000, gamma=0.99):
+    cont = 0
+    solved = False
     for episode in range(episodes):  # Loop sobre os episódios
         state, _ = env.reset()  # Reinicia o ambiente e obtém o estado inicial
         log_probs = []  # Lista para armazenar os logaritmos das probabilidades
         rewards = []    # Lista para armazenar as recompensas
         done = False  # Indica se o episódio terminou
+        i = 0
         while not done:  # Enquanto o episódio não terminar
             # Converte o estado para um tensor para ser usado pela rede
             state_tensor = torch.tensor(state, dtype=torch.float32)
-            # Obtém as probabilidades de ações a partir da política
+            # Obtém as probabilidades de ações a partir da política (softmax)
             action_probs = policy(state_tensor)
             # Define a distribuição categórica com base nas probabilidades
             action_dist = torch.distributions.Categorical(action_probs)
-            # Seleciona uma ação amostrada da distribuição
+            # Seleciona uma ação amostrada da distribuição de acordo com as
+            # probabilidades da saída da rede (softmax)
             action = action_dist.sample()
-
             # Armazena o log da probabilidade da ação tomada
             log_probs.append(action_dist.log_prob(action))
             # Executa a ação no ambiente e obtém o próximo estado e recompensa
@@ -64,14 +67,19 @@ def reinforce(env, policy, optimizer, episodes=1000, gamma=0.99):
             # Termina o loop se o episódio estiver terminado ou truncado
             done = terminated or truncated
 
+            if solved:
+                i += 1
+                print(i, '  ', end='\r')
+                
         # Calcula os retornos descontados para o episódio
         returns = compute_returns(rewards, gamma)
         # Converte os retornos para um tensor
         returns = torch.tensor(returns, dtype=torch.float32)
         # Normaliza os retornos para melhorar a estabilidade numérica
         returns = (returns - returns.mean()) / (returns.std() + 1e-9)
-
         # Calcula a perda como -somatório dos log-probs ponderados pelos retornos
+        # PyTorch torch.stack() method joins (concatenates) a sequence of tensors 
+        # (two or more tensors) along a new dimension. 
         loss = -torch.sum(torch.stack(log_probs) * returns)
         loss_hist.append(loss.item())
 
@@ -86,15 +94,28 @@ def reinforce(env, policy, optimizer, episodes=1000, gamma=0.99):
         loss.backward()        # Calcula os gradientes da perda em relação aos parâmetros
         optimizer.step()       # Atualiza os pesos da rede com base nos gradientes
 
-        if episode == (episodes - 3):
+        # a partir de (episodes - 5) muda para render_mode='human'
+        if episode == (episodes - 5):
             env.close()
-            env = gym.make('CartPole-v1', render_mode='human')
+            env = gym.make('CartPole-v1', render_mode='human', max_episode_steps = max_episode_steps_)
             env.reset()
-            
+          
         # Para o treinamento se o agente resolver o ambiente (alcançar reward_threshold)
-        # if total_reward >= env.spec.reward_threshold:
-        #     print(f"Solved in {episode + 1} episodes!")
-        #     break
+        if total_reward >= env.spec.max_episode_steps:  
+            print(f"\nSolved in {episode + 1} episodes!")
+            solved = True 
+            
+        if solved :
+            cont += 1    
+            
+        if cont == 1:
+            env.close()
+            env = gym.make('CartPole-v1', render_mode='human', max_episode_steps = max_episode_steps_)
+            env.reset()  
+            
+        if cont > 3:
+            break
+
 
 # Executa o treinamento
 # Cria o ambiente CartPole-v1
@@ -110,7 +131,7 @@ optimizer = optim.Adam(policy.parameters(), lr=0.01)
 
 loss_hist = []
 rewards_hist = []
-episodes_ = 500
+episodes_ = 100
 # Chama a função para treinar a política usando REINFORCE
 reinforce(env, policy, optimizer, episodes=episodes_)
 
