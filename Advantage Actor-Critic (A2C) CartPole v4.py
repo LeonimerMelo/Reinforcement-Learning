@@ -2,7 +2,8 @@
 """
 Created on Mon Jan 20 13:21:11 2025
 
-@author: TechnoLEDs
+@author: Leonimer
+
 """
 
 # implementação do Advantage Actor-Critic (A2C) em PyTorch
@@ -22,7 +23,7 @@ env = gym.make('CartPole-v1', render_mode = 'rgb_array',
 GAMMA = 0.99
 LR = 1e-3
 N_STEPS = 10
-EPISODES = 1400
+EPISODES = 1500
 
 # Rede Actor-Critic
 class ActorCritic(nn.Module):
