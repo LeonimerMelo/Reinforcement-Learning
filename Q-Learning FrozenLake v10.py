@@ -67,8 +67,8 @@ is_training = False
 
 # parâmetros do ambiente (env)
 size_e = 5
-seeds = 1
-proba_frozen = .8
+seeds = 12
+proba_frozen = .9
 max_episode_steps_ = 200
 '''
 is_slippery=True: If true the player will move in intended direction with probability 
@@ -89,13 +89,15 @@ env = gym.make("FrozenLake-v1", render_mode ='rgb_array' if is_training else 'hu
                                                              p=proba_frozen, seed=seeds))
 
 # Hiperparâmetros
-episodes = 3000  # Número de episódios
+episodes = 5000  # Número de episódios
 alpha = 0.1  # Taxa de aprendizado (alpha or learning rate)
 # gamma or discount rate. Near 0: more weight/reward placed on immediate state. 
 # Near 1: more on future state
 gamma = 0.9  # Fator de desconto  
+# epsilon = .2  # Taxa de exploração inicial (1 = 100% random actions)
 epsilon = 1  # Taxa de exploração inicial (1 = 100% random actions)
 min_epsilon = 0.01  # Epsilon mínimo
+# min_epsilon = 0.1  # Epsilon mínimo
 #epsilon_decay_rate = 0.001  # Fator de decaimento do epsilon
 epsilon_decay_rate = 5/episodes # Fator de decaimento do epsilon
 

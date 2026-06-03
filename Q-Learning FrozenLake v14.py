@@ -63,11 +63,11 @@ import seaborn as sns
 # Treinamento --> is_training = True
 # Avaliação --> is_training = False
 is_training = False
-is_training = True
+# is_training = True
 
 # parâmetros do ambiente (env)
-size_e = 12
-seeds = 0
+size_e = 5
+seeds = 5
 proba_frozen = .9
 max_episode_steps_ = 200
 '''
